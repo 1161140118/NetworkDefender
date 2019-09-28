@@ -1,0 +1,20 @@
+#!/bin/bash
+# author:周宇星
+
+# 使用方法
+# 第1个参数是网卡设备号
+# 第2个参数是每次监听时间/s
+# 第3个参数是进行处理的python路径
+export PATH=$PATH:/usr/local/zeek/bin
+
+while :
+do
+	timeout $2 zeek -i $1 ./41-feature.bro
+
+	if [ -r ./result.log ]
+	then
+		cat ./result.log | bro-cut index start_time src_addr src_port dst_addr dst_port duration src_size dst_size protocol_type land service flag wrong_fragment urgent hot num_failed_logins logged_in num_compromised root_shell su_attempted num_root num_file_creations num_shells num_access_files num_outbound_files is_hot_login is_guest_login | sort -n > result.tmp
+		python3 ./handle.py
+		rm -f ./result.log ./result.tmp
+	fi
+done
