@@ -40,10 +40,17 @@
 - zlib headers (https://zlib.net/)
 - Python (https://www.python.org/)
 安装步骤可以参考上述网站
+
 再执行下指令：
+
 ./configure
+
 make
+
 make install
+
 然后把run脚本和41-feature脚本放在一起运行得到result.tmp
+
 执行命令：sudo ./run ens33 5
+
 再把result.tmp和handle.py放在同一目录运行handle.py得到result
