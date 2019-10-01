@@ -21,7 +21,7 @@
 ### 1.6 utils
 定义几个用于Spark DataFrame对函数，在SparkRF文件中基于Spark UserDefinedFunction使用。
 
-### 2. Bro安装以及handle用法
+## 2. Bro安装以及handle用法
 根据https://docs.zeek.org/en/stable/install/install.html 上的说明我们需要以下提前安装好：
 - Libpcap (http://www.tcpdump.org)
 - OpenSSL libraries (http://www.openssl.org)
@@ -43,14 +43,16 @@
 
 再执行下指令：
 
-./configure
+```
+./configure 
 
 make
 
 make install
+```
 
 然后把run脚本和41-feature脚本放在一起运行得到result.tmp
 
-执行命令：sudo ./run ens33 5
+执行命令：`sudo ./run ens33 5`
 
 再把result.tmp和handle.py放在同一目录运行handle.py得到result
