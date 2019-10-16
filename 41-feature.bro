@@ -14,8 +14,8 @@ type features: record {
 	dst_size: count				&default = 0 &log;
 	protocol_type: string		&default = "tcp" &log;
 	land: bool					&default = F &log;
-	service: string				&default = "other" &log;
-	flag: string				&default = "OTH" &log;
+	service: string				&default = "http" &log;
+	flag: string				&default = "SF" &log;
 	wrong_fragment: count		&default = 0 &log;
 	urgent: count				&default = 0 &log;
 	hot: count					&default = 0 &log;
@@ -75,7 +75,8 @@ function get_flag(c: connection): string {
 		} else if (os == TCP_ESTABLISHED && rs == TCP_ESTABLISHED) {
 			return "S1";
 		} else {
-			return "OTH";
+			# origin: OTH
+			return "SF";
 		}
 	} else if (protocol == udp) {
 		if (os == UDP_ACTIVE) {
@@ -344,6 +345,7 @@ function add_record(c: connection) {
 			$dst_size = conn_dst_size,
 			$protocol_type = conn_protocol,
 			$land = conn_src_equal_dst,
+			$service = conn_service,
 			$flag = get_flag(c)
 		];
 		++conn_index;
@@ -528,39 +530,35 @@ event new_connection(c: connection) {
 }
 
 event connection_state_remove(c: connection) {
-	
+	add_record(c);
 }
 
 event tcp_packet(c: connection, is_orig: bool, flags: string, seq: count, ack: count, len: count, payload: string) {
-
+	add_record(c);
 }
 
 event udp_contents(c: connection, is_orig: bool, contents: string) {
-
-}
-
-function record_connectionICMP(c: connection) {
-
+	add_record(c);
 }
 
 event icmp_echo_request(c: connection, icmp: icmp_conn, id: count, seq: count, payload: string) {
-
+	add_record(c);
 }
 
 event icmp_echo_reply(c: connection, icmp: icmp_conn, id: count, seq: count, payload: string) {
-
+	add_record(c);
 }
 
 event icmp_unreachable(c: connection, icmp: icmp_conn, code: count, context: icmp_context) {
-
+	add_record(c);
 }
 
 event icmp_time_exceeded(c: connection, icmp: icmp_conn, code: count, context: icmp_context) {
-
+	add_record(c);
 }
 
 event packet_contents(c: connection, contents: string) {
-
+	add_record(c);
 }
 
 event new_packet(c: connection, p: pkt_hdr) {
@@ -687,103 +685,103 @@ event login_prompt(c: connection, prompt: string) {
 }
 
 event ssh_signature_found(c: connection, is_orig: bool) {
-
+	add_record(c);
 }
 
 event telnet_signature_found(c: connection, is_orig: bool, len: count) {
-
+	add_record(c);
 }
 
 event rlogin_signature_found(c: connection, is_orig: bool, num_null: count, len: count) {
-
+	add_record(c);
 }
 
 event root_backdoor_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event ftp_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event napster_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event gnutella_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event kazaa_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event http_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event http_proxy_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event smtp_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event irc_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event gaobot_signature_found(c: connection) {
-
+	add_record(c);
 }
 
 event finger_request(c: connection, full: bool, username: string, hostname: string) {
-
+	add_record(c);
 }
 
 event ident_reply(c: connection, lport: port, rport: port, user_id: string, system: string) {
-
+	add_record(c);
 }
 
 event rsh_request(c: connection, client_user: string, server_user: string, line: string, new: bool) {
-
+	add_record(c);
 }
 
 event rsh_reply(c: connection, client_user: string, server_user: string, line: string) {
-
+	add_record(c);
 }
 
 event pop3_login_success(c: connection, is_orig: bool, user: string, password: string) {
-
+	add_record(c);
 }
 
 event pop3_login_failure(c: connection, is_orig: bool, user: string, password: string) {
-
+	add_record(c);
 }
 
 event irc_who_line(c: connection, is_orig: bool, target_nick: string, channel: string, user: string, host: string, server: string, nick: string, params: string, hops: count, real_name: string) {
-
+	add_record(c);
 }
 
 event irc_whois_message(c: connection, is_orig: bool, server: string, users: string) {
-
+	add_record(c);
 }
 
 event irc_whois_user_line(c: connection, is_orig: bool, nick: string, user: string, host: string, real_name: string) {
-
+	add_record(c);
 }
 
 event irc_oper_message(c: connection, is_orig: bool, user: string, password: string) {
-
+	add_record(c);
 }
 
 event irc_kick_message(c: connection, is_orig: bool, prefix: string, chans: string, users: string, comment: string) {
-
+	add_record(c);
 }
 
 event irc_names_info(c: connection, is_orig: bool, c_type: string, channel: string, users: string_set) {
-
+	add_record(c);
 }
 
 event ftp_request(c: connection, command: string, arg: string) {
@@ -801,7 +799,7 @@ event conn_weird(name: string, c: connection, addl: string) {
 }
 
 event conn_weird_addl(name: string, c: connection, addl: string) {
-	
+	add_record(c);
 }
 
 

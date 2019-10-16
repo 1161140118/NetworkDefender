@@ -6,6 +6,7 @@
 # flag wrong_fragment urgent hot num_failed_logins
 # logged_in num_compromised root_shell su_attempted num_root num_file_
 # creations num_shells num_access_files num_outbound_files is_hot_login is_guest_login
+SIZE = 10000 # kddcup数据集中加入多少个数据
 
 
 def read_log():
@@ -27,17 +28,73 @@ def read_log():
                 dst_addr.append(new_record[4])
                 dst_port.append(new_record[5])
                 network_status.append(new_record[12])
-                record.append(new_record)
+                src_size = new_record[7]
+                dst_size = new_record[8]
+                protocol_type = new_record[9]
+                land = new_record[10]
+                service = new_record[11]
+                flag = new_record[12]
+                del new_record[0]
+                del new_record[0]
+                del new_record[0]
+                del new_record[0]
+                del new_record[0]
+                del new_record[0]
+                new_record[1] = protocol_type
+                new_record[2] = service
+                new_record[3] = flag
+                new_record[4] = src_size
+                new_record[5] = dst_size
+                if land == 'F':
+                    new_record[6] = 0
+                else:
+                    new_record[6] = 1
 
+                if new_record[11] == 'F':
+                    new_record[11] = 0
+                else:
+                    new_record[11] = 1
+                if new_record[13] == 'F':
+                    new_record[13] = 0
+                else:
+                    new_record[13] = 1
+                if new_record[14] == 'F':
+                    new_record[14] = 0
+                else:
+                    new_record[14] = 1
+                if new_record[20] == 'F':
+                    new_record[20] = 0
+                else:
+                    new_record[20] = 1
+                if new_record[21] == 'F':
+                    new_record[21] = 0
+                else:
+                    new_record[21] = 1
+                record.append(new_record)
         K1 = time_based_features(start_time, dst_addr, dst_port, network_status)
         K2 = host_based_features(src_addr, src_port, dst_addr, dst_port, network_status)
 
         for i in range(len(record)):
             temp_record = record[i]
-            for j in range(9):
-                temp_record.append(K1[i][j])
-            for j in range(10):
-                temp_record.append(K2[i][j])
+            for j in range(2):
+                temp_record.append(format(K1[i][j], '.0f'))
+            for j in range(2,9):
+                temp_record.append(format(K1[i][j], '.2f'))
+            for j in range(2):
+                temp_record.append(format(K2[i][j], '.0f'))
+            for j in range(2,10):
+                temp_record.append(format(K2[i][j], '.2f'))
+
+        if os.path.exists('kddcup'): # 加入KDDCUP部分
+            with open('kddcup', 'r') as read:
+                count = 0
+                for line in read:
+                    new_record = line.split(",")
+                    del new_record[41]
+                    count = count + 1
+                    record.append(new_record)
+                    if count > SIZE:
+                        break
 
         return record
     return None  # 没有捕获到包
@@ -45,7 +102,7 @@ def read_log():
 
 def time_based_features(start_time, dst_addr, dst_port, network_status, pre_time=2):
     record_num = len(start_time)
-    K_ = [[0] * 10] * record_num  # 用于事先统计数量
+    K_ = [[0 for i in range(10)] for i in range(record_num)]  # 用于事先统计数量
     for i in range(record_num):
         time_i = float(start_time[i])
         for j in range(i + 1, record_num):
@@ -83,7 +140,7 @@ def time_based_features(start_time, dst_addr, dst_port, network_status, pre_time
 
 def host_based_features(src_addr, src_port, dst_addr, dst_port, network_status, pre_back=100):
     record_num = len(src_addr)
-    K_ = [[0]*10] * record_num # 用于事先统计数量
+    K_ = [[0 for i in range(10)] for i in range(record_num)] # 用于事先统计数量
 
     for i in range(record_num):
         j = 0 if i < pre_back else i-pre_back
@@ -121,8 +178,9 @@ def host_based_features(src_addr, src_port, dst_addr, dst_port, network_status, 
 
 if __name__ == '__main__':
     record = read_log()
-    with open('result', 'a') as f:
-        for r in record:
-            feature_list = [str(feature) for feature in r]
-            new_line = ','.join(feature_list)
-            f.write(new_line+'\n')
+    if record is not None:
+        with open('result', 'a') as f:
+            for r in record:
+                feature_list = [str(feature) for feature in r]
+                new_line = ','.join(feature_list)
+                f.write(new_line+'\n')
