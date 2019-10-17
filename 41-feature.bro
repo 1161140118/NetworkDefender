@@ -9,12 +9,12 @@ type features: record {
 	src_port: count				&log;
 	dst_addr: addr				&log;
 	dst_port: count				&log;
-	duration: interval			&default = 0sec &log;
+	duration: string			&default = "0" &log;
 	src_size: count				&default = 0 &log;
 	dst_size: count				&default = 0 &log;
 	protocol_type: string		&default = "tcp" &log;
 	land: bool					&default = F &log;
-	service: string				&default = "http" &log;
+	service: string				&default = "other" &log;
 	flag: string				&default = "SF" &log;
 	wrong_fragment: count		&default = 0 &log;
 	urgent: count				&default = 0 &log;
@@ -329,7 +329,7 @@ function add_record(c: connection) {
 			conn_service = "Z39_50";
 			break;
 		default:
-			conn_service = "other";
+			conn_service = "http";
 			break;
 		}
 
@@ -340,7 +340,7 @@ function add_record(c: connection) {
 			$src_port = conn_src_port,
 			$dst_addr = conn_dst_addr,
 			$dst_port = conn_dst_port,
-			$duration = conn_duration,
+			$duration = fmt("%.0f", conn_duration),
 			$src_size = conn_src_size,
 			$dst_size = conn_dst_size,
 			$protocol_type = conn_protocol,
